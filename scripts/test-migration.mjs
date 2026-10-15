@@ -31,6 +31,11 @@ try {
   const migration = await readFile(new URL('../supabase/migrations/20261015000100_create_books.sql', import.meta.url), 'utf8');
   check(!/\b(drop|truncate|delete\s+from)\b/i.test(migration), 'No destructive statements in migration');
   await db.exec(migration);
+  const healthMigration = await readFile(new URL('../supabase/migrations/20261016000100_health_check.sql', import.meta.url), 'utf8');
+  await db.exec(healthMigration);
+  await db.exec(healthMigration);
+  const healthFunction = await db.query("select prosecdef from pg_proc where oid = 'public.booktrack_health()'::regprocedure");
+  check(healthFunction.rows[0].prosecdef === false, 'Health function uses caller privileges');
   const permissions = await db.query("select rolname, rolsuper, rolbypassrls from pg_roles where rolname in ('anon', 'authenticated')");
   check(permissions.rows.every(role => !role.rolsuper && !role.rolbypassrls), 'Assertions use roles without superuser or BYPASSRLS');
   await asUser(a);
@@ -65,6 +70,7 @@ try {
   await denied('update public.books set rating=6 where id=$1', [book.id], '23514');
   await denied("update public.books set status='reading' where id=$1", [book.id], '23514');
   await db.exec('reset role; set role anon;');
+  check((await db.query('select public.booktrack_health() as result')).rows[0].result === 1, 'Anonymous health probe executes SELECT 1');
   for (const sql of ['select * from public.books', "insert into public.books(title,author) values ('X','Y')", "update public.books set title='X'", 'delete from public.books']) await denied(sql, [], '42501');
   await asUser(a);
   check((await db.query('delete from public.books where id=$1 returning id', [book.id])).rows.length === 1, 'Own DELETE allowed');

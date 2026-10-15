@@ -1,9 +1,65 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { createMockRepository, seedBooks } from './data/mockRepository';
 import { BackendError } from './data/backendError';
+import { analytics } from './analytics/metrika';
+
+afterEach(() => vi.restoreAllMocks());
+
+describe('Successful library events', () => {
+  it('reports creation and a finished book only after the repository confirms success', async () => {
+    const goals = vi.spyOn(analytics, 'goal').mockImplementation(() => undefined);
+    const repo = createMockRepository({ initial: [], delayMs: 0 });
+    render(<App repository={repo} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Добавить первую книгу' }));
+    await userEvent.type(screen.getByLabelText('Название', { exact: true }), 'Private title');
+    await userEvent.type(screen.getByLabelText('Автор', { exact: true }), 'Private author');
+    await userEvent.type(screen.getByLabelText('Заметка (необязательно)'), 'Private notes');
+    await userEvent.selectOptions(screen.getByLabelText('Статус', { exact: true }), 'finished');
+    repo.failNext('create');
+    await userEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    await screen.findByRole('alert');
+    expect(goals).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(goals.mock.calls).toEqual([['book_created'], ['book_finished']]);
+  });
+  it('reports only a successful transition to finished, excluding edits to an already finished book', async () => {
+    const goals = vi.spyOn(analytics, 'goal').mockImplementation(() => undefined);
+    const repo = createMockRepository({ initial: [seedBooks[0]], delayMs: 0 });
+    render(<App repository={repo} />);
+    await screen.findByRole('article');
+    await userEvent.click(screen.getByRole('button', { name: `Редактировать «${seedBooks[0].title}»` }));
+    await userEvent.selectOptions(screen.getByLabelText('Статус', { exact: true }), 'finished');
+    repo.failNext('update');
+    await userEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    await screen.findByRole('alert');
+    expect(goals).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: `Редактировать «${seedBooks[0].title}»` }));
+    await userEvent.type(screen.getByLabelText('Заметка (необязательно)'), 'Private updated note');
+    await userEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(goals.mock.calls).toEqual([['book_finished']]);
+  });
+  it('reports deletion once after a failed attempt and a successful retry', async () => {
+    const goals = vi.spyOn(analytics, 'goal').mockImplementation(() => undefined);
+    const repo = createMockRepository({ initial: [seedBooks[0]], delayMs: 0 });
+    render(<App repository={repo} />);
+    await screen.findByRole('article');
+    await userEvent.click(screen.getByRole('button', { name: `Удалить «${seedBooks[0].title}»` }));
+    repo.failNext('remove');
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Удалить' }));
+    await screen.findByRole('alert');
+    expect(goals).not.toHaveBeenCalled();
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Удалить' }));
+    await screen.findByText('В библиотеке пока нет книг');
+    expect(goals.mock.calls).toEqual([['book_deleted']]);
+  });
+});
 
 describe('Library — T-01/T-04/T-05/T-06/T-08', () => {
   it('blocks uncertain create retry until the user closes the draft and reviews the list', async () => {

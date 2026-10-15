@@ -5,6 +5,7 @@ import type { AuthService, AuthUser } from './data/authService';
 import type { BookRepository } from './data/bookRepository';
 import { BackendError } from './data/backendError';
 import { useAsyncAction } from './hooks/useAsyncAction';
+import { analytics } from './analytics/metrika';
 
 export function AuthenticatedApp({ auth, repositoryFor }: {
   auth: AuthService; repositoryFor(userId: string, onInvalid: () => void): BookRepository;
@@ -52,6 +53,9 @@ export function AuthenticatedApp({ auth, repositoryFor }: {
     return () => window.clearTimeout(timer);
   }, [userId, expiresAt, invalidate]);
   const repository = useMemo(() => userId ? repositoryFor(userId, () => invalidate(userId)) : null, [userId, repositoryFor, invalidate]);
+  useEffect(() => {
+    if (!loading) analytics.page(userId ? 'library' : 'auth');
+  }, [loading, userId]);
   if (loading) return <main role="status" className="p-8 text-center">Восстановление сессии…</main>;
   if (!user || !repository) return <>
     {failure && <div className="mx-auto max-w-md px-4 pt-6"><p role="alert" className="field-error">{failure}</p><button className="btn-secondary mt-3" onClick={() => setAttempt(value => value + 1)}>Повторить проверку сессии</button></div>}
