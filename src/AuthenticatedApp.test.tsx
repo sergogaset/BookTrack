@@ -12,6 +12,7 @@ function setup(initial: AuthUser | null = null) {
   const auth: AuthService = {
     restore: vi.fn().mockResolvedValue(initial),
     signIn: vi.fn().mockResolvedValue(userA), signUp: vi.fn().mockResolvedValue(null),
+    signInWithGitHub: vi.fn().mockResolvedValue(undefined),
     signOut: vi.fn().mockResolvedValue(undefined),
     subscribe(callback) { listener = callback; return vi.fn(); },
   };
@@ -21,6 +22,43 @@ function setup(initial: AuthUser | null = null) {
   return { auth, repositoryFor, emit: (user: AuthUser | null) => act(() => listener(user)) };
 }
 describe('Authentication boundary', () => {
+  it('starts GitHub OAuth without requiring email/password and blocks duplicate attempts', async () => {
+    const context = setup();
+    let finish!: () => void;
+    vi.mocked(context.auth.signInWithGitHub).mockReturnValue(new Promise(resolve => { finish = resolve; }));
+    render(<AuthenticatedApp {...context} />);
+    const button = await screen.findByRole('button', { name: 'Войти через GitHub' });
+    await userEvent.click(button);
+    expect(context.auth.signInWithGitHub).toHaveBeenCalledTimes(1);
+    expect(button).toBeDisabled();
+    expect(screen.getByLabelText('Email')).toBeDisabled();
+    await userEvent.click(button);
+    expect(context.auth.signInWithGitHub).toHaveBeenCalledTimes(1);
+    await act(async () => finish());
+    expect(screen.getByRole('button', { name: 'Переход в GitHub…' })).toBeDisabled();
+    expect(context.auth.signIn).not.toHaveBeenCalled();
+  });
+  it('shows a safe OAuth start error and leaves email login usable', async () => {
+    const context = setup();
+    vi.mocked(context.auth.signInWithGitHub).mockRejectedValue(new BackendError('network', 'Нет связи с сервером.'));
+    render(<AuthenticatedApp {...context} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Войти через GitHub' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Нет связи с сервером');
+    expect(screen.getByRole('button', { name: 'Войти через GitHub' })).toBeEnabled();
+    await userEvent.type(screen.getByLabelText('Email'), userA.email);
+    await userEvent.type(screen.getByLabelText('Пароль'), 'test-password');
+    await userEvent.click(screen.getByRole('button', { name: 'Войти' }));
+    await screen.findByRole('article');
+    expect(context.auth.signIn).toHaveBeenCalledWith(userA.email, 'test-password');
+  });
+  it('displays a callback cancellation and keeps the private library hidden', async () => {
+    const context = setup();
+    vi.mocked(context.auth.restore).mockRejectedValue(new BackendError('unauthenticated', 'Вход через GitHub отменён.'));
+    render(<AuthenticatedApp {...context} />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Вход через GitHub отменён');
+    expect(screen.queryByRole('article')).not.toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Войти через GitHub' })).toBeEnabled();
+  });
   it('protects the library, signs in and clears it on logout', async () => {
     const context = setup();
     render(<AuthenticatedApp {...context} />);
