@@ -1,0 +1,8 @@
+{
+  "checkedAt": "2026-10-15T23:04:33.301Z",
+  "passed": [],
+  "assertions": 0,
+  "failedCheck": "Two ordinary confirmed users sign in",
+  "result": "FAIL",
+  "scope": "Live Supabase; ordinary users; only newly created fixture IDs modified/deleted"
+}

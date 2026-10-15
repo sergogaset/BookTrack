@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-10-15T23:11:10.899Z",
+  "scope": "Current tracked and untracked non-ignored text files and locally available Git history; selected credential patterns and known local sensitive values; heuristic only",
+  "checkedTextFiles": 87,
+  "trackedPrivateEnvFiles": [],
+  "matchingCurrentFiles": [],
+  "matchingHistory": false,
+  "unsafeHtmlOrEvalInApplication": false
+}
