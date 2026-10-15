@@ -1,6 +1,6 @@
 # Пять шаблонов RTCF для BookTrack
 
-[Навигация](README.md) · [Контекст](project-context.md) · [Правила](ai-rules.md)
+[Навигация](README.md) · [Контекст](project_description.md) · [Технические требования](technical_specification.md) · [Правила](rules.md)
 
 RTCF: Role — роль, Task — задача, Context — контекст, Format — формат ответа. Ниже ровно пять шаблонов. В универсальной версии замените переменные в квадратных скобках фактическими значениями. Примеры предназначены для будущих этапов; в ДЗ2 выполнять их не требуется. Пути реализации агент определяет после изучения репозитория. Если frontend ещё отсутствует, следует сообщить о недостающей основе, а не создавать всё приложение в рамках одной компонентной задачи.
 
@@ -30,7 +30,7 @@ F — Format: Краткое описание проблемы; таблица �
 R — Role: Ты системный аналитик BookTrack.
 T — Task: Для ДЗ3 уточни поиск по названию/автору и фильтр статуса,
 составь план будущей реализации. Файлы не изменяй.
-C — Context: Прочитай docs/project-context.md и docs/ai-rules.md.
+C — Context: Прочитай docs/project_description.md, docs/technical_specification.md и docs/rules.md.
 В репозитории пока только документация; проверь актуальное состояние.
 Основа — FR-06 и FR-07. Поиск: вхождение без регистра, trim запроса;
 фильтр: «Все», want_to_read, reading, finished; совместное применение AND.
@@ -66,7 +66,7 @@ F — Format: Найденные файлы и допущения; кратки�
 ```text
 R — Role: Ты frontend-разработчик React + TypeScript BookTrack.
 T — Task: В готовой основе ДЗ4 создай BookCard для отображения одной книги.
-C — Context: Прочитай docs/project-context.md и docs/ai-rules.md;
+C — Context: Прочитай docs/project_description.md, docs/technical_specification.md и docs/rules.md;
 примени RULE-01–RULE-05 и RULE-08–RULE-13. Сначала проверь наличие frontend.
 Используй общий Book ДЗ4 (без user_id), не дублируй его; BookStatus — union
 want_to_read | reading | finished. Props: book: Book,
@@ -108,7 +108,7 @@ F — Format: Контракт и допущения; краткий план; �
 R — Role: Ты frontend-разработчик React + TypeScript BookTrack.
 T — Task: В основе ДЗ4 создай переиспользуемую BookForm для добавления
 и редактирования с начальными значениями; не подключай Supabase.
-C — Context: Прочитай docs/project-context.md и docs/ai-rules.md.
+C — Context: Прочитай docs/project_description.md, docs/technical_specification.md и docs/rules.md.
 Сначала изучи типы и компоненты. Поля: title (trim, 1–200), author
 (trim, 1–120), status (want_to_read/reading/finished), rating (null либо
 целое 1–5 только при finished), notes (trim, до 1000; пустая -> null).
@@ -151,7 +151,7 @@ F — Format: Таблица «требование — сценарий — о�
 ```text
 R — Role: Ты инженер по тестированию BookTrack, Vitest + React Testing Library.
 T — Task: Добавь тесты BookForm для FR-02, FR-08, FR-09.
-C — Context: Прочитай docs/project-context.md, docs/ai-rules.md и существующую
+C — Context: Прочитай docs/project_description.md, docs/technical_specification.md, docs/rules.md и существующую
 BookForm с её типами и тестовой конфигурацией. Код формы без необходимости не меняй.
 Проверь: пробельный title/author блокирует onSave; границы длины 200/201,
 120/121, 1000/1001; rating null и 1/5 допустимы при finished, 0/6/дробь запрещены;
@@ -192,7 +192,7 @@ R — Role: Ты React/TypeScript-разработчик BookTrack, выполн
 T — Task: Проверь учебный сценарий ошибки: после reject mock-сохранения
 BookForm очищает title и author. При подтверждении исправь потерю ввода.
 C — Context: Это гипотетический сценарий для будущего ДЗ4, не обнаруженный
-дефект текущего репозитория. Прочитай docs/project-context.md и docs/ai-rules.md,
+дефект текущего репозитория. Прочитай docs/project_description.md, docs/technical_specification.md и docs/rules.md,
 затем код формы и тесты, если они существуют. Воспроизведение: ввести «Мастер
 и Маргарита», «Михаил Булгаков», выбрать reading, отправить, отклонить mock Promise.
 Ожидается: поля сохранены, ошибка объявлена, повтор и отмена доступны.

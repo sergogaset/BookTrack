@@ -1,6 +1,6 @@
 # Пошаговая декомпозиция: форма добавления книги
 
-[Навигация](README.md) · [Контекст](project-context.md) · [Правила](ai-rules.md) · [RTCF](rtcf-prompts.md)
+[Навигация](README.md) · [Контекст](project_description.md) · [Технические требования](technical_specification.md) · [Правила](rules.md) · [RTCF](prompt_templates.md)
 
 Это демонстрация техники промтинга для будущего ДЗ4. Шаги ниже не выполнялись в коде в рамках ДЗ2.
 
@@ -14,7 +14,7 @@
 
 ## 3. Уточнённая постановка
 
-На этапе ДЗ4 в существующей основе React + TypeScript + Vite создать форму добавления BookTrack с Tailwind CSS. До реализации изучить фактические файлы и [правила](ai-rules.md). Если основы нет, обозначить недостающий контекст; не разворачивать приложение в рамках этой задачи.
+На этапе ДЗ4 в существующей основе React + TypeScript + Vite создать форму добавления BookTrack с Tailwind CSS. До реализации изучить фактические файлы и [правила](rules.md). Если основы нет, обозначить недостающий контекст; не разворачивать приложение в рамках этой задачи.
 
 Вход BookInput: title, author, status, rating, notes. title после trim — 1–200 символов, author — 1–120, notes — до 1000 (пустая -> null). Статусы: want_to_read («Хочу прочитать», по умолчанию), reading («Читаю»), finished («Прочитано»). rating — null или целое 1–5 только при finished; при переходе в другой статус очищается до null с пояснением. Длины считаются через JavaScript string.length.
 
@@ -29,7 +29,7 @@
 **Цель:** определить место формы и избежать дублирования типов.
 
 ```text
-Изучи BookTrack, docs/project-context.md и docs/ai-rules.md. Найди основу
+Изучи BookTrack, docs/project_description.md, docs/technical_specification.md и docs/rules.md. Найди основу
 frontend, типы, UI и тестовые scripts. Без изменений опиши контракт BookInput,
 onSave(input): Promise<void>, onCancel(): void и минимальный список файлов.
 Укажи, кто назначает id/created_at/updated_at. Если основы нет, сообщи об этом;
@@ -149,7 +149,7 @@ pending, отмену, границы rating и его сброс при сме�
 
 ```text
 Ты frontend-разработчик BookTrack. В существующей основе ДЗ4 реализуй только
-форму добавления книги. Прочитай docs/project-context.md и docs/ai-rules.md,
+форму добавления книги. Прочитай docs/project_description.md, docs/technical_specification.md и docs/rules.md,
 изучи реальные типы/UI/scripts. Если frontend отсутствует, сообщи об этом
 и не создавай всё приложение. Дай краткий план и явные допущения.
 
