@@ -1,0 +1,118 @@
+{
+  "browser": "155.0.4283.45",
+  "measurements": [
+    {
+      "label": "library",
+      "requestedWidth": 320,
+      "viewport": 320,
+      "scrollWidth": 320,
+      "dialogWidth": null,
+      "dialogScrollWidth": null
+    },
+    {
+      "label": "form-long-input",
+      "requestedWidth": 320,
+      "viewport": 320,
+      "scrollWidth": 320,
+      "dialogWidth": 282,
+      "dialogScrollWidth": 282
+    },
+    {
+      "label": "library-long-text",
+      "requestedWidth": 320,
+      "viewport": 320,
+      "scrollWidth": 320,
+      "dialogWidth": null,
+      "dialogScrollWidth": null
+    },
+    {
+      "label": "delete-long-title",
+      "requestedWidth": 320,
+      "viewport": 320,
+      "scrollWidth": 320,
+      "dialogWidth": 282,
+      "dialogScrollWidth": 282
+    },
+    {
+      "label": "library",
+      "requestedWidth": 768,
+      "viewport": 768,
+      "scrollWidth": 768,
+      "dialogWidth": null,
+      "dialogScrollWidth": null
+    },
+    {
+      "label": "form-long-input",
+      "requestedWidth": 768,
+      "viewport": 768,
+      "scrollWidth": 768,
+      "dialogWidth": 576,
+      "dialogScrollWidth": 576
+    },
+    {
+      "label": "library-long-text",
+      "requestedWidth": 768,
+      "viewport": 768,
+      "scrollWidth": 768,
+      "dialogWidth": null,
+      "dialogScrollWidth": null
+    },
+    {
+      "label": "delete-long-title",
+      "requestedWidth": 768,
+      "viewport": 768,
+      "scrollWidth": 768,
+      "dialogWidth": 576,
+      "dialogScrollWidth": 576
+    },
+    {
+      "label": "library",
+      "requestedWidth": 1280,
+      "viewport": 1280,
+      "scrollWidth": 1280,
+      "dialogWidth": null,
+      "dialogScrollWidth": null
+    },
+    {
+      "label": "form-long-input",
+      "requestedWidth": 1280,
+      "viewport": 1280,
+      "scrollWidth": 1280,
+      "dialogWidth": 576,
+      "dialogScrollWidth": 576
+    },
+    {
+      "label": "library-long-text",
+      "requestedWidth": 1280,
+      "viewport": 1280,
+      "scrollWidth": 1280,
+      "dialogWidth": null,
+      "dialogScrollWidth": null
+    },
+    {
+      "label": "delete-long-title",
+      "requestedWidth": 1280,
+      "viewport": 1280,
+      "scrollWidth": 1280,
+      "dialogWidth": 576,
+      "dialogScrollWidth": 576
+    }
+  ],
+  "consoleAndPageErrors": [],
+  "passed": [
+    "no horizontal overflow at 320/768/1280",
+    "long text and modal widths",
+    "native modal Tab containment",
+    "Escape cancellation and opener focus",
+    "pending blocks Escape and cancel",
+    "load failure/retry",
+    "create failure/input preservation/retry",
+    "production build renders three books and ignores dev scenario parameters"
+  ],
+  "notChecked": [
+    "physical mobile device",
+    "200% browser zoom",
+    "screen reader",
+    "full contrast audit"
+  ]
+}
