@@ -1,0 +1,91 @@
+{
+  "checkedAt": "2026-10-15T23:20:30.093Z",
+  "productionUrl": "https://booktrack-one.vercel.app",
+  "deployment": {
+    "runId": 38822685700,
+    "commit": "441b8a0c622e944c9f028cea8343ba22fa833d84",
+    "ci": "success",
+    "deploy": "success"
+  },
+  "headers": {
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "DENY",
+    "referrer-policy": "no-referrer",
+    "content-security-policy": "frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+  },
+  "frontend": {
+    "status": 200
+  },
+  "healthGet": {
+    "status": 200,
+    "requestId": "1928e61f-8962-4bf7-be28-4f9d1c8d3444",
+    "body": {
+      "status": "ok",
+      "checks": {
+        "app": "up",
+        "supabaseAuth": "up",
+        "database": "up"
+      }
+    }
+  },
+  "healthPost": {
+    "status": 405,
+    "requestId": "26e31c42-59b3-4b62-878c-43554fa21403",
+    "body": {
+      "status": "method_not_allowed"
+    },
+    "purpose": "Safe rejected-method probe; no database mutation"
+  },
+  "dashboardVerification": {
+    "vercel": {
+      "status": "confirmed_by_owner",
+      "levelsObserved": [
+        "info",
+        "warning"
+      ],
+      "evidence": "Owner reported seeing JSON info and warning; no raw logs exported"
+    },
+    "supabase": {
+      "apiGateway": {
+        "status": "confirmed_by_owner",
+        "path": "/rest/v1/rpc/booktrack_health",
+        "httpStatus": 200,
+        "evidence": "Owner reported seeing booktrack_health 200 in Supabase logs; no raw logs exported"
+      },
+      "auth": {
+        "status": "confirmed_by_owner",
+        "event": "successful_login",
+        "evidence": "Owner reported seeing a successful login in Auth Logs; no raw logs exported"
+      }
+    }
+  },
+  "scope": "Public GitHub API and HTTP responses verified automatically; Vercel Logs and Supabase API Gateway / Auth Logs confirmed manually by owner; checkedAt applies to automatic HTTP checks, owner confirmations were added later",
+  "finalRecheck": {
+    "checkedAt": "2026-10-15T23:41:40.326Z",
+    "runId": 38822685700,
+    "commit": "441b8a0c622e944c9f028cea8343ba22fa833d84",
+    "event": "push",
+    "branch": "main",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "TypeScript, lint, tests and build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Deploy production to Vercel",
+        "conclusion": "success"
+      }
+    ],
+    "healthStatus": 200,
+    "healthBody": {
+      "status": "ok",
+      "checks": {
+        "app": "up",
+        "supabaseAuth": "up",
+        "database": "up"
+      }
+    },
+    "requestId": "d89a07ed-eb15-40a3-b676-f800ba7624ad"
+  }
+}
