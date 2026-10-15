@@ -168,15 +168,15 @@ try {
         global: { fetch: (input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(15000) }) },
       });
       const login = await cleanupClient.auth.signInWithPassword({ email: env.BOOKTRACK_TEST_EMAIL_A, password: env.BOOKTRACK_TEST_PASSWORD_A });
-      if (login.error) throw new Error();
+      assert.ok(!login.error);
       for (const id of fixtureIds) {
         const remove = await cleanupClient.from('books').delete().eq('id', id);
-        if (remove.error) throw new Error();
+        assert.ok(!remove.error);
         const absent = await cleanupClient.from('books').select('id').eq('id', id);
-        if (absent.error || absent.data?.length !== 0) throw new Error();
+        assert.ok(!absent.error && absent.data?.length === 0);
       }
       const logout = await cleanupClient.auth.signOut({ scope: 'local' });
-      if (logout.error) throw new Error();
+      assert.ok(!logout.error);
       passed.push('Only fixture ids created in this run were cleaned up; absence verified');
     }
   } catch { failed = true; failedStage ??= stage; console.log('Fixture cleanup failed; inspect the dedicated test account.'); }
