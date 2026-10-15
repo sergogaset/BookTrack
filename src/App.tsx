@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { assertBooks, filterBooks, isBookStatus, sortBooks, statusLabels, type Book, type BookFilter, type BookInput } from './domain/book';
-import type { BookRepository } from './data/mockRepository';
+import type { BookRepository } from './data/bookRepository';
+import { BackendError } from './data/backendError';
 import { BookCard } from './components/BookCard';
 import { BookForm } from './components/BookForm';
 import { DeleteConfirmation } from './components/DeleteConfirmation';
@@ -14,6 +15,7 @@ export function App({ repository }: { repository: BookRepository }) {
   const [filter, setFilter] = useState<BookFilter>('all');
   const [selection, setSelection] = useState<Selection>(null);
   const [notice, setNotice] = useState<{ text: string; hidden?: boolean } | null>(null);
+  const [loadError, setLoadError] = useState('');
   const loadLock = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const load = useCallback(async () => {
@@ -26,7 +28,7 @@ export function App({ repository }: { repository: BookRepository }) {
       setBooks(sortBooks(result));
       setLoadState('success');
     }
-    catch { setLoadState('error'); }
+    catch (cause) { setLoadError(cause instanceof BackendError ? cause.message : 'Не удалось загрузить книги.'); setLoadState('error'); }
     finally { loadLock.current = false; }
   }, [repository]);
   useEffect(() => { void load(); }, [load]);
@@ -65,7 +67,7 @@ export function App({ repository }: { repository: BookRepository }) {
     <main id="library" className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-10">
       <div className="mb-7 flex flex-wrap items-center justify-between gap-2">
         <h1 ref={heading} tabIndex={-1} className="text-2xl font-semibold tracking-tight">Моя библиотека</h1>
-        <button className="text-sm font-medium text-teal-700 hover:underline" disabled={loadState === 'loading'} onClick={() => { setNotice(null); void load(); }}>Обновить список</button>
+        <button className="text-sm font-medium text-teal-700 hover:underline" disabled={loadState === 'loading' || selection !== null} onClick={() => { setNotice(null); void load(); }}>Обновить список</button>
       </div>
       <div className="mb-8 grid min-w-0 gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)]">
         <div><label htmlFor="search">Поиск по библиотеке</label><input id="search" type="search" placeholder="Название или автор" value={query} onChange={event => setQuery(event.target.value)} /></div>
@@ -78,7 +80,7 @@ export function App({ repository }: { repository: BookRepository }) {
       </div>}
       {loadState === 'loading' && <div role="status" className="rounded-xl border border-slate-200 bg-white p-10 text-center text-slate-600">Загрузка библиотеки…</div>}
       {loadState === 'error' && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-900">
-        <p>Не удалось загрузить книги.</p><button className="btn-secondary mt-4" onClick={() => void load()}>Повторить</button>
+        <p>{loadError}</p><button className="btn-secondary mt-4" onClick={() => void load()}>Повторить</button>
       </div>}
       {loadState === 'success' && (books.length === 0 ? <div className="rounded-xl border border-dashed border-slate-300 bg-white px-5 py-14 text-center">
         <h2 className="text-xl font-semibold">В библиотеке пока нет книг</h2><p className="mb-5 mt-2 text-slate-600">Начните с книги, которую давно хотели прочитать.</p>
@@ -87,7 +89,7 @@ export function App({ repository }: { repository: BookRepository }) {
         <h2 className="text-xl font-semibold">Ничего не найдено</h2><p className="mt-2 text-slate-600">Попробуйте другое название, автора или статус.</p>
         <button className="btn-secondary mt-5" onClick={reset}>Сбросить условия</button>
       </div> : <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{visible.map(book => <BookCard key={book.id} book={book} onEdit={id => select('edit', id)} onDelete={id => select('delete', id)} />)}</div>)}
-      <p className="mt-10 text-sm leading-relaxed text-slate-600">Учебная библиотека · изменения хранятся в памяти и сбрасываются после перезагрузки страницы.</p>
+      <p className="mt-10 text-sm leading-relaxed text-slate-600">Личная библиотека · данные сохраняются в вашем аккаунте.</p>
     </main>
     {selection && (selection.kind === 'delete'
       ? <DeleteConfirmation book={selection.book} onDelete={remove} onCancel={() => setSelection(null)} />

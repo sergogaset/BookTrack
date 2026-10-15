@@ -8,7 +8,7 @@ export function BookForm({ initialValues, onSave, onCancel }: {
 }) {
   const [values, setValues] = useState<BookInput>(initialValues ?? emptyBook);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const { pending, error: failure, run, clearError } = useAsyncAction('Не удалось сохранить книгу. Данные не изменены, введённые поля сохранены. Повторите попытку или закройте форму и обновите список.');
+  const { pending, needsReview, error: failure, run, clearError } = useAsyncAction('Не удалось сохранить книгу. Введённые поля сохранены. Повторите попытку или закройте форму и обновите список.');
   const [ratingCleared, setRatingCleared] = useState(false);
   const form = useRef<HTMLFormElement>(null);
   const prefix = useId();
@@ -54,7 +54,7 @@ export function BookForm({ initialValues, onSave, onCancel }: {
       </fieldset>
       {failure && <p role="alert" className="my-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{failure}</p>}
       <div className="mt-7 flex flex-wrap gap-3">
-        <button type="submit" className="btn-primary" disabled={pending}>{pending ? 'Сохранение…' : 'Сохранить'}</button>
+        <button type="submit" className="btn-primary" disabled={pending || needsReview}>{pending ? 'Сохранение…' : 'Сохранить'}</button>
         <button type="button" className="btn-secondary" disabled={pending} onClick={onCancel}>Отмена</button>
       </div>
     </form>

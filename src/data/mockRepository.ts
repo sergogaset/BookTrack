@@ -1,18 +1,14 @@
 import { normalizeBook, sortBooks, validateBook, type Book, type BookInput } from '../domain/book';
 import { BookUnavailableError } from '../domain/errors';
 
-export interface BookRepository {
-  list(): Promise<Book[]>;
-  create(input: BookInput): Promise<Book>;
-  update(id: string, input: BookInput): Promise<Book>;
-  remove(id: string): Promise<void>;
-}
+import type { BookRepository } from './bookRepository';
+export type { BookRepository } from './bookRepository';
 export type Operation = 'list' | 'create' | 'update' | 'remove';
 
 export const seedBooks: Book[] = [
-  { id: 'cafe0000-0000-4000-8000-000000000001', title: 'Мастер и Маргарита', author: 'Михаил Булгаков', status: 'reading', rating: null, notes: null, created_at: '2026-10-15T12:00:00.000Z', updated_at: '2026-10-15T12:00:00.000Z' },
-  { id: 'cafe0000-0000-4000-8000-000000000002', title: 'Пикник на обочине', author: 'Аркадий и Борис Стругацкие', status: 'want_to_read', rating: null, notes: null, created_at: '2026-10-14T12:00:00.000Z', updated_at: '2026-10-14T12:00:00.000Z' },
-  { id: 'cafe0000-0000-4000-8000-000000000003', title: 'Капитанская дочка', author: 'Александр Пушкин', status: 'finished', rating: null, notes: null, created_at: '2026-10-13T12:00:00.000Z', updated_at: '2026-10-13T12:00:00.000Z' },
+  { user_id: 'cafe0000-0000-4000-8000-000000000000', id: 'cafe0000-0000-4000-8000-000000000001', title: 'Мастер и Маргарита', author: 'Михаил Булгаков', status: 'reading', rating: null, notes: null, created_at: '2026-10-15T12:00:00.000Z', updated_at: '2026-10-15T12:00:00.000Z' },
+  { user_id: 'cafe0000-0000-4000-8000-000000000000', id: 'cafe0000-0000-4000-8000-000000000002', title: 'Пикник на обочине', author: 'Аркадий и Борис Стругацкие', status: 'want_to_read', rating: null, notes: null, created_at: '2026-10-14T12:00:00.000Z', updated_at: '2026-10-14T12:00:00.000Z' },
+  { user_id: 'cafe0000-0000-4000-8000-000000000000', id: 'cafe0000-0000-4000-8000-000000000003', title: 'Капитанская дочка', author: 'Александр Пушкин', status: 'finished', rating: null, notes: null, created_at: '2026-10-13T12:00:00.000Z', updated_at: '2026-10-13T12:00:00.000Z' },
 ];
 
 // Every failure happens before mutation; tests control latency and one-shot failures.
@@ -35,7 +31,7 @@ export function createMockRepository(options: { initial?: Book[]; delayMs?: numb
       const value = validated(input);
       await wait('create');
       const now = new Date().toISOString();
-      const book = { ...value, id: crypto.randomUUID(), created_at: now, updated_at: now };
+      const book = { ...value, user_id: 'cafe0000-0000-4000-8000-000000000000', id: crypto.randomUUID(), created_at: now, updated_at: now };
       books = [...books, book];
       return { ...book };
     },

@@ -3,8 +3,25 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { createMockRepository, seedBooks } from './data/mockRepository';
+import { BackendError } from './data/backendError';
 
 describe('Library — T-01/T-04/T-05/T-06/T-08', () => {
+  it('blocks uncertain create retry until the user closes the draft and reviews the list', async () => {
+    const repo = createMockRepository({ initial: [], delayMs: 0 });
+    repo.create = vi.fn().mockRejectedValue(new BackendError('network', 'Не удалось подтвердить сохранение. Закройте форму и обновите список.', true));
+    render(<App repository={repo} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Добавить первую книгу' }));
+    await userEvent.type(screen.getByLabelText('Название', { exact: true }), 'Черновик');
+    await userEvent.type(screen.getByLabelText('Автор', { exact: true }), 'Автор');
+    await userEvent.click(screen.getByRole('button', { name: 'Сохранить' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось подтвердить сохранение');
+    expect(screen.getByRole('button', { name: 'Сохранить' })).toBeDisabled();
+    expect(screen.getByLabelText('Название', { exact: true })).toHaveValue('Черновик');
+    expect(repo.create).toHaveBeenCalledTimes(1);
+    await userEvent.click(screen.getByRole('button', { name: 'Отмена' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Обновить список' }));
+    expect(await screen.findByRole('heading', { name: 'В библиотеке пока нет книг' })).toBeVisible();
+  });
   it('rejects a malformed response instead of presenting it as an empty or valid library', async () => {
     const repo = createMockRepository({ delayMs: 0 });
     repo.list = vi.fn().mockResolvedValue([{ ...seedBooks[0], status: 'invalid' }]);

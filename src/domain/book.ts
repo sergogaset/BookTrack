@@ -15,6 +15,7 @@ export interface BookInput {
 }
 export interface Book extends BookInput {
   id: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -65,6 +66,7 @@ export function assertBooks(value: unknown): asserts value is Book[] {
     if (typeof item !== 'object' || item === null) throw new Error('Некорректная книга');
     const book = item as Record<string, unknown>;
     if (typeof book.id !== 'string' || !book.id || ids.has(book.id) ||
+      typeof book.user_id !== 'string' || !book.user_id ||
       typeof book.title !== 'string' || typeof book.author !== 'string' ||
       typeof book.status !== 'string' || !isBookStatus(book.status) ||
       (book.rating !== null && typeof book.rating !== 'number') ||

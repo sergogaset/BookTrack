@@ -5,3 +5,5 @@ coverage/
 *.local
 .env*
 !.env.example
+supabase/.temp/
+supabase/.branches/

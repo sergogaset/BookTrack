@@ -12,14 +12,20 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:browser": "node scripts/browser-check.mjs",
+    "check:browser:live": "node scripts/browser-live-check.mjs",
+    "check:supabase": "node scripts/check-supabase.mjs",
+    "test:sql": "node scripts/test-migration.mjs",
+    "test:integration": "node scripts/test-supabase.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.57.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.3.14",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
