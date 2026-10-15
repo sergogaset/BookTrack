@@ -100,10 +100,16 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
+      - name: Validate Vercel production configuration
+        run: node scripts/check-deployment-config.mjs
+
       - name: Build Vercel production artifacts
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Validate prebuilt production artifacts
+        run: node scripts/check-deployment-config.mjs --artifacts
 
       - name: Deploy prebuilt production artifacts
         env:
