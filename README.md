@@ -13,8 +13,8 @@ React + TypeScript + Vite + Tailwind; Supabase PostgreSQL + Auth + RLS.
 
 ## Локальный запуск
 
-Рекомендуется поддерживаемый Node.js 22 LTS и npm. Локальные проверки выполнены
-на имеющемся Node 18.15 / npm 9.5; эта версия Node устарела.
+Требуется Node.js **22 LTS** и npm (`.nvmrc`, `engines`). Актуальные проверки
+ДЗ6 выполняются на Node 22; Node 18 больше не подходит для обновлённых инструментов.
 
 ```sh
 npm ci
@@ -39,6 +39,8 @@ npm run dev
 
 ```sh
 npm test
+npm run lint
+npm run check:secrets
 npm run test:sql
 npm run typecheck
 npm run build
@@ -68,7 +70,7 @@ npm run preview
 тестовые книги. Результаты: [API/RLS](docs/images/hw5/live-api-results.json) и
 [production UI](docs/images/hw5/live-browser-results.json). Секреты берутся из
 игнорируемого `.env.integration.local`; значения не публикуются.
-Lint не настроен. Автоматический `npm audit fix --force` не применяется.
+ESLint настроен в ДЗ6. Автоматический `npm audit fix --force` не применяется.
 
 ## Структура
 
@@ -86,7 +88,26 @@ Lint не настроен. Автоматический `npm audit fix --force`
 неоднозначном исходе записи форма предлагает закрыть её и сверить список,
 блокируя повторное сохранение. Смена аккаунта очищает библиотеку и черновики.
 
+## ДЗ6 — CI/CD и сервисы
+
+[Интеграции и точная ручная настройка](docs/integration_documentation.md) ·
+[Аудит безопасности](docs/security_audit.md) ·
+[GitHub Actions](.github/workflows/ci-cd.yml).
+
+**Готово и проверено:** локальные проверки, аудит и исправления зависимостей,
+Auth/CRUD/RLS регрессия, JSON logger, тесты OAuth/аналитики и Health Check.
+
+**Реализовано, но ожидает ручной настройки:** Actions → Vercel production,
+Google OAuth через Supabase, Яндекс.Метрика с согласием, `/api/health` и UptimeRobot.
+Production URL и ID счётчика пока неизвестны. Секреты в коде отсутствуют;
+`VITE_*` содержат только публичную конфигурацию. До согласия Метрика не загружается,
+изменить выбор можно внизу приложения. Для Health владелец применяет только новую
+[RPC-миграцию](supabase/migrations/20261015000200_health_check.sql), без изменения RLS books.
+Vite dev/preview не запускают serverless endpoint; он исполняется на Vercel.
+
+**Не выполнено / есть проблема:** реальные CI/CD run, production OAuth,
+достижения целей и мониторинг ещё не подтверждены. ДЗ6 полностью завершённым
+не отмечено. Порядок действий — раздел «Ручная настройка сервисов» отчёта.
+
 Репозиторий: [sergogaset/BookTrack](https://github.com/sergogaset/BookTrack).
-Изменения текущей сессии ещё не опубликованы. Адрес размещённого frontend неизвестен;
-инструкции локального запуска являются артефактом сдачи. OAuth, CI/CD и аналитика
-относятся к финальному заданию.
+Текущие изменения ещё не опубликованы; публикация и Dashboard-действия остаются владельцу.

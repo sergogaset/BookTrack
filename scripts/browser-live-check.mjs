@@ -162,7 +162,8 @@ try {
   stage = 'cleanup newly created fixture ids';
   await Promise.all(trackedResponses);
   try {
-    if (fixtureIds.size) {
+    async function cleanupFixtures() {
+      if (!fixtureIds.size) return;
       cleanupClient = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_PUBLISHABLE_KEY, {
         auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
         global: { fetch: (input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(15000) }) },
@@ -179,6 +180,7 @@ try {
       if (logout.error) throw new Error();
       passed.push('Only fixture ids created in this run were cleaned up; absence verified');
     }
+    await cleanupFixtures();
   } catch { failed = true; failedStage ??= stage; console.log('Fixture cleanup failed; inspect the dedicated test account.'); }
   await browser?.close();
   if (server) await new Promise(resolve => server.httpServer.close(resolve));

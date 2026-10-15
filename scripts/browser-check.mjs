@@ -6,6 +6,8 @@ import { createServer, loadEnv, preview } from 'vite';
 
 // Browser E2E against intercepted HTTP fixtures, never real user records or Auth.
 const env = loadEnv('development', process.cwd(), 'VITE_');
+const resultsDirectory = process.env.BOOKTRACK_RESULTS_DIR ?? 'docs/images/hw5';
+const browserPort = Number(process.env.BOOKTRACK_BROWSER_PORT ?? 5173);
 const apiOrigin = new URL(env.VITE_SUPABASE_URL).origin;
 const executablePath = process.env.BOOKTRACK_BROWSER_PATH ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const user = { id: '10000000-0000-4000-8000-000000000001', email: 'reader@example.test', aud: 'authenticated', created_at: '2026-10-15T00:00:00Z', app_metadata: {}, user_metadata: {} };
@@ -20,10 +22,10 @@ let createRequests = 0;
 const errors = [];
 const measurements = [];
 const passed = [];
-const server = await createServer({ server: { host: '127.0.0.1', port: 5173, strictPort: true } });
+const server = await createServer({ server: { host: '127.0.0.1', port: browserPort, strictPort: true } });
 let browser;
 let production;
-await mkdir('docs/images/hw5', { recursive: true });
+await mkdir(resultsDirectory, { recursive: true });
 try {
   await server.listen();
   browser = await chromium.launch({ executablePath, headless: true });
@@ -86,13 +88,13 @@ try {
     records = [{ ...initial }];
     await context.clearCookies();
     await page.setViewportSize({ width, height: 900 });
-    await page.goto('http://127.0.0.1:5173');
+    await page.goto(`http://127.0.0.1:${browserPort}`);
     await page.evaluate(() => localStorage.clear());
     await page.reload();
     await page.getByRole('heading', { name: 'Вход', exact: true }).waitFor();
     await checkSize('auth', width);
     if (width === 320) {
-      await page.screenshot({ path: 'docs/images/hw5/auth-320.png', fullPage: true });
+      await page.screenshot({ path: `${resultsDirectory}/auth-320.png`, fullPage: true });
       await page.getByRole('button', { name: 'Создать аккаунт' }).click();
       await page.getByLabel('Email', { exact: true }).fill(user.email);
       await page.getByLabel('Пароль', { exact: true }).fill('browser-test-password');
@@ -103,7 +105,7 @@ try {
     await signIn();
     await page.getByRole('heading', { name: initial.title }).waitFor();
     await checkSize('library', width);
-    await page.screenshot({ path: `docs/images/hw5/library-${width}.png`, fullPage: true });
+    await page.screenshot({ path: `${resultsDirectory}/library-${width}.png`, fullPage: true });
     await page.getByRole('button', { name: 'Добавить книгу', exact: true }).click();
     const dialog = page.getByRole('dialog');
     assert.equal(await page.getByLabel('Название', { exact: true }).evaluate(el => el === document.activeElement), true);
@@ -115,7 +117,7 @@ try {
       await page.keyboard.press('Tab');
       assert.ok(await dialog.evaluate(el => el.contains(document.activeElement) || document.activeElement === document.body), 'Modal contains keyboard focus');
     }
-    if (width === 320) await page.screenshot({ path: 'docs/images/hw5/form-320.png', fullPage: true });
+    if (width === 320) await page.screenshot({ path: `${resultsDirectory}/form-320.png`, fullPage: true });
     await dialog.getByRole('button', { name: 'Сохранить', exact: true }).click();
     await dialog.waitFor({ state: 'detached' });
     await page.getByRole('heading', { name: 'Я'.repeat(200), exact: true }).waitFor();
@@ -165,15 +167,15 @@ try {
   passed.push('Validation refusal preserves draft; explicit retry creates one record');
   await page.goto('about:blank');
   await server.close();
-  production = await preview({ preview: { host: '127.0.0.1', port: 5173, strictPort: true } });
-  await page.goto('http://127.0.0.1:5173/?empty&mockError=list');
+  production = await preview({ preview: { host: '127.0.0.1', port: browserPort, strictPort: true } });
+  await page.goto(`http://127.0.0.1:${browserPort}/?empty&mockError=list`);
   await page.getByRole('heading', { name: 'Повтор после отказа' }).waitFor();
   passed.push('Production build uses Auth/API and ignores former dev mock parameters');
   // Chromium emits one console error for the intentionally injected HTTP 400.
   assert.equal(errors.filter(value => value.startsWith('Uncaught')).length, 0);
   assert.ok(errors.length <= 1, 'No unexpected console errors beyond controlled HTTP refusal');
   const report = { date: '2026-10-15', browser: await browser.version(), scope: 'Actual UI and Supabase SDK; intercepted HTTP fixtures. Not evidence of remote database/Auth/RLS.', measurements, passed, expectedConsoleErrors: errors.length, notChecked: ['Live Supabase end-to-end', 'Live two-user RLS', 'Physical mobile', '200% zoom', 'Screen reader', 'Full contrast audit'] };
-  await writeFile('docs/images/hw5/browser-results.json', JSON.stringify(report, null, 2) + '\n');
+  await writeFile(`${resultsDirectory}/browser-results.json`, JSON.stringify(report, null, 2) + '\n');
   console.log(JSON.stringify(report, null, 2));
 } finally {
   await browser?.close();

@@ -11,6 +11,6 @@ export function createSupabaseClient(): SupabaseClient<Database> {
     if (new URL(url).protocol !== 'https:') throw new Error();
   } catch { throw new Error('Проверьте HTTPS URL Supabase в .env.local.'); }
   return createClient<Database>(url, key, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce' },
   });
 }

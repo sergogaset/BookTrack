@@ -7,3 +7,6 @@ coverage/
 !.env.example
 supabase/.temp/
 supabase/.branches/
+.vercel/
+.tools/
+deployment-url.txt

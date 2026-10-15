@@ -5,6 +5,7 @@ import { BackendError } from './data/backendError';
 import { BookCard } from './components/BookCard';
 import { BookForm } from './components/BookForm';
 import { DeleteConfirmation } from './components/DeleteConfirmation';
+import { reachGoal } from './analytics';
 
 type Selection = { kind: 'create' } | { kind: 'edit' | 'delete'; book: Book } | null;
 
@@ -43,6 +44,8 @@ export function App({ repository }: { repository: BookRepository }) {
     const book = selection.kind === 'edit'
       ? await repository.update(selection.book.id, input)
       : await repository.create(input);
+    if (selection.kind === 'create') reachGoal('book_created');
+    if (selection.kind === 'edit' && selection.book.status !== 'finished' && book.status === 'finished') reachGoal('book_finished');
     setBooks(previous => sortBooks([...previous.filter(item => item.id !== book.id), book]));
     setNotice({ text: selection.kind === 'edit' ? 'Изменения сохранены.' : 'Книга добавлена.', hidden: filterBooks([book], query, filter).length === 0 });
     setSelection(null);
@@ -50,6 +53,7 @@ export function App({ repository }: { repository: BookRepository }) {
   async function remove() {
     if (selection?.kind !== 'delete') return;
     await repository.remove(selection.book.id);
+    reachGoal('book_deleted');
     setBooks(previous => previous.filter(book => book.id !== selection.book.id));
     setNotice({ text: 'Книга удалена.' });
     setSelection(null);

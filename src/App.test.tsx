@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { createMockRepository, seedBooks } from './data/mockRepository';
 import { BackendError } from './data/backendError';
+import { reachGoal } from './analytics';
+vi.mock('./analytics', () => ({ reachGoal: vi.fn() }));
 
 describe('Library — T-01/T-04/T-05/T-06/T-08', () => {
   it('blocks uncertain create retry until the user closes the draft and reviews the list', async () => {
@@ -18,6 +20,7 @@ describe('Library — T-01/T-04/T-05/T-06/T-08', () => {
     expect(screen.getByRole('button', { name: 'Сохранить' })).toBeDisabled();
     expect(screen.getByLabelText('Название', { exact: true })).toHaveValue('Черновик');
     expect(repo.create).toHaveBeenCalledTimes(1);
+    expect(reachGoal).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: 'Отмена' }));
     await userEvent.click(screen.getByRole('button', { name: 'Обновить список' }));
     expect(await screen.findByRole('heading', { name: 'В библиотеке пока нет книг' })).toBeVisible();
@@ -70,6 +73,7 @@ describe('Library — T-01/T-04/T-05/T-06/T-08', () => {
     await user.click(screen.getByRole('button', { name: 'Сбросить условия' }));
     expect(screen.getAllByRole('article')).toHaveLength(4);
     expect(await repo.list()).toHaveLength(4);
+    expect(reachGoal).toHaveBeenCalledExactlyOnceWith('book_created');
   });
 
   it('edits the selected book using the shared form and renders notes as text', async () => {
@@ -86,6 +90,7 @@ describe('Library — T-01/T-04/T-05/T-06/T-08', () => {
     expect(await screen.findByText('Оценка: 5 из 5')).toBeVisible();
     expect(screen.getByText('<script>alert(1)</script>')).toBeVisible();
     expect(document.querySelector('article script')).toBeNull();
+    expect(reachGoal).toHaveBeenCalledExactlyOnceWith('book_finished');
     expect((await repo.list()).find(book => book.id === seedBooks[0].id)?.created_at).toBe(seedBooks[0].created_at);
   });
 
@@ -100,9 +105,11 @@ describe('Library — T-01/T-04/T-05/T-06/T-08', () => {
     repo.failNext('remove');
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Удалить' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось удалить книгу');
+    expect(reachGoal).not.toHaveBeenCalled();
     expect(screen.getAllByRole('article')).toHaveLength(1);
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Удалить' }));
     expect(await screen.findByText('В библиотеке пока нет книг')).toBeVisible();
     expect(screen.getByRole('status')).toHaveTextContent('Книга удалена');
+    expect(reachGoal).toHaveBeenCalledExactlyOnceWith('book_deleted');
   });
 });

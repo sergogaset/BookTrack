@@ -17,6 +17,7 @@ const options = { auth: { persistSession: false, autoRefreshToken: false, detect
 const client = () => createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_PUBLISHABLE_KEY, options);
 const a = client(), b = client(), anon = client();
 const fixtures = [];
+const resultsDirectory = process.env.BOOKTRACK_RESULTS_DIR ?? 'docs/images/hw5';
 const passed = [];
 let failedCheck = null;
 const check = (condition, name) => { if (!condition) failedCheck = name; assert.ok(condition, name); passed.push(name); };
@@ -91,7 +92,7 @@ try {
   }
 }
 const report = { checkedAt: new Date().toISOString(), passed, assertions: passed.length, failedCheck, result: failed ? 'FAIL' : 'PASS', scope: 'Live Supabase; ordinary users; only newly created fixture IDs modified/deleted' };
-await mkdir('docs/images/hw5', { recursive: true });
-await writeFile('docs/images/hw5/live-api-results.json', JSON.stringify(report, null, 2) + '\n');
+await mkdir(resultsDirectory, { recursive: true });
+await writeFile(`${resultsDirectory}/live-api-results.json`, JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));
 if (failed) process.exitCode = 1;
