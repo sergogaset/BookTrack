@@ -1,3 +1,6 @@
+import { randomUUID } from 'node:crypto';
+import { logEvent } from '../shared/logger.js';
+
 type Environment = Record<string, string | undefined>;
 type CheckState = 'up' | 'down';
 
@@ -12,17 +15,25 @@ export function createHealthHandler({ env = process.env, fetchImpl = fetch, time
   env?: Environment; fetchImpl?: typeof fetch; timeoutMs?: number;
 } = {}) {
   return async function health(request: Request): Promise<Response> {
-    const respond = (status: number, body: unknown, extraHeaders?: Record<string, string>) => new Response(
-      request.method === 'HEAD' ? null : JSON.stringify(body),
-      { status, headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': 'no-store, max-age=0',
-        'CDN-Cache-Control': 'no-store',
-        'Vercel-CDN-Cache-Control': 'no-store',
-        'X-Content-Type-Options': 'nosniff',
-        ...extraHeaders,
-      } },
-    );
+    const requestId = randomUUID();
+    const startedAt = performance.now();
+    const respond = (status: number, body: { status: string; checks?: Record<'app' | 'supabaseAuth' | 'database', CheckState> }, extraHeaders?: Record<string, string>, reason?: 'timeout' | 'dependency') => {
+      logEvent(status === 405 ? 'health.method_rejected' : status === 503 && !body.checks ? 'health.configuration_invalid' : 'health.completed', {
+        requestId, status, durationMs: performance.now() - startedAt, checks: body.checks, reason,
+      });
+      return new Response(
+        request.method === 'HEAD' ? null : JSON.stringify(body),
+        { status, headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-store, max-age=0',
+          'CDN-Cache-Control': 'no-store',
+          'Vercel-CDN-Cache-Control': 'no-store',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Request-Id': requestId,
+          ...extraHeaders,
+        } },
+      );
+    };
     if (request.method !== 'GET' && request.method !== 'HEAD') return respond(405, { status: 'method_not_allowed' }, { Allow: 'GET, HEAD' });
     let appUrl: string, supabaseUrl: string, key: string;
     try {
@@ -65,6 +76,6 @@ export function createHealthHandler({ env = process.env, fetchImpl = fetch, time
     } catch { /* Timeout is reported below without network details. */ }
     finally { clearTimeout(timer); }
     const healthy = !controller.signal.aborted && Object.values(checks).every(state => state === 'up');
-    return respond(healthy ? 200 : 503, { status: healthy ? 'ok' : 'unavailable', checks });
+    return respond(healthy ? 200 : 503, { status: healthy ? 'ok' : 'unavailable', checks }, undefined, healthy ? undefined : controller.signal.aborted ? 'timeout' : 'dependency');
   };
 }

@@ -10,10 +10,11 @@ import { it } from 'vitest';
 
 it('loads the compiled endpoint in native Node ESM without the Vite module resolver', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'booktrack-health-runtime-'));
-  const files = ['api/health', 'server/health'];
+  const files = ['api/health', 'server/health', 'shared/logger'];
   try {
     await mkdir(join(directory, 'api'));
     await mkdir(join(directory, 'server'));
+    await mkdir(join(directory, 'shared'));
     await writeFile(join(directory, 'package.json'), JSON.stringify({ type: 'module' }));
     for (const file of files) {
       const source = await readFile(join(process.cwd(), `${file}.ts`), 'utf8');
@@ -38,7 +39,7 @@ it('loads the compiled endpoint in native Node ESM without the Vite module resol
   } finally {
     // Delete only this test's explicit files and empty temporary directories.
     await Promise.allSettled([...files.map(file => unlink(join(directory, `${file}.js`))), unlink(join(directory, 'package.json'))]);
-    await Promise.allSettled(['api', 'server'].map(name => rmdir(join(directory, name))));
+    await Promise.allSettled(['api', 'server', 'shared'].map(name => rmdir(join(directory, name))));
     await rmdir(directory);
   }
 }, 15000);

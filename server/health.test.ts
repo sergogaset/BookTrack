@@ -18,9 +18,18 @@ function setup() {
   });
   return { upstream, handler: createHealthHandler({ env, fetchImpl: upstream }) };
 }
-afterEach(() => vi.useRealTimers());
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 
 describe('Vercel health endpoint', () => {
+  it('correlates the JSON log and response with a server-generated request ID', async () => {
+    const info = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+    const { handler } = setup();
+    const response = await handler(new Request('https://booktrack.example.test/api/health?private=query', { headers: { 'X-Request-Id': 'private-caller-value', Authorization: 'Bearer private-caller-token' } }));
+    const record = JSON.parse(info.mock.calls[0][0]);
+    expect(record).toMatchObject({ event: 'health.completed', level: 'info', status: 200, requestId: response.headers.get('x-request-id'), checks: { app: 'up', supabaseAuth: 'up', database: 'up' } });
+    expect(record.requestId).toMatch(/^[a-f\d-]{36}$/);
+    expect(JSON.stringify(record)).not.toMatch(/private|Bearer|supabase\.co|sb_publishable/);
+  });
   it('exports a web handler for the Vercel Node runtime', () => {
     expect(endpoint.fetch).toBeTypeOf('function');
   });

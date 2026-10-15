@@ -1,0 +1,21 @@
+{
+  "inputKind": "demonstration",
+  "records": 3,
+  "invalidLines": 0,
+  "levels": {
+    "info": 1,
+    "warning": 1,
+    "error": 1
+  },
+  "events": {
+    "backend.failure": 1,
+    "health.completed": 2,
+    "health.configuration_invalid": 0,
+    "health.method_rejected": 0
+  },
+  "failedChecks": {
+    "app": 0,
+    "supabaseAuth": 0,
+    "database": 1
+  }
+}

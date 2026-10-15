@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-10-15T23:02:26.801Z",
+  "supabaseSettingsStatus": 200,
+  "githubEnabled": true,
+  "emailEnabled": true,
+  "emailConfirmationRequired": false,
+  "signupEnabled": true,
+  "frontendStatus": 200,
+  "headers": {
+    "content-security-policy": null,
+    "x-frame-options": null,
+    "x-content-type-options": null,
+    "referrer-policy": null,
+    "strict-transport-security": "max-age=63072000; includeSubDomains; preload"
+  },
+  "scope": "Public endpoints only; dashboard settings and stored Client Secret not accessible"
+}
