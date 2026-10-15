@@ -4,6 +4,23 @@
 React + TypeScript + Vite + Tailwind; Supabase PostgreSQL + Auth + RLS.
 Сохранена концепция [Minimal Library](docs/ui_concepts/ui_description.md).
 
+## ДЗ6 — CI/CD и интеграции
+
+[Приложение](https://booktrack-one.vercel.app) ·
+[Health Check](https://booktrack-one.vercel.app/api/health) ·
+[GitHub Actions](https://github.com/sergogaset/BookTrack/actions/workflows/ci-cd.yml).
+
+**Готово и проверено:** деплой на Vercel через GitHub Actions, GitHub OAuth через
+Supabase, личная библиотека/RLS, Health Check, UptimeRobot, JSON-логи и аудит.
+**Реализовано, ожидает проверки:** код Яндекс.Метрики с согласием пользователя.
+**Не выполнено:** внешняя настройка Метрики и подтверждение доставки событий
+(отложены владельцем). ДЗ6 целиком пока не завершено.
+
+[Документация интеграций и чек-лист](docs/integration_documentation.md) ·
+[Аудит и открытые риски](docs/security_audit.md).
+В полном npm audit остаются 7 находок инструментов сборки; в production-зависимостях — 0.
+Проверка почты Supabase пропущена по решению владельца; подтверждение email сейчас отключено.
+
 ДЗ5 реализовано и проверено с реальным Supabase: 33 проверки API/RLS двумя
 подтверждёнными пользователями и 14 проверок production-интерфейса прошли.
 Миграция применена владельцем; данные сохраняются после перезагрузки и повторного
@@ -13,8 +30,8 @@ React + TypeScript + Vite + Tailwind; Supabase PostgreSQL + Auth + RLS.
 
 ## Локальный запуск
 
-Рекомендуется поддерживаемый Node.js 22 LTS и npm. Локальные проверки выполнены
-на имеющемся Node 18.15 / npm 9.5; эта версия Node устарела.
+Используйте Node.js 24 и совместимый npm. Финальные локальные проверки выполнены
+на Node 24.22.0; GitHub Actions также использует Node 24.
 
 ```sh
 npm ci
@@ -32,8 +49,10 @@ npm run dev
 смотрите [миграцию](supabase/migrations/20261015000100_create_books.sql) и
 [инструкцию SQL Editor](docs/backend_documentation.md#развёртывание-и-подтверждение-миграции).
 В Auth → URL Configuration настройте Site URL и разрешённый Redirect URL
-`http://127.0.0.1:5173` (либо фактический origin). Подтверждение email включено:
-зарегистрируйтесь, перейдите по ссылке из письма и войдите.
+`http://127.0.0.1:5173` (либо фактический origin). В текущем Supabase подтверждение
+email отключено; почтовые проверки отложены владельцем. Доступны существующий
+email/password вход и кнопка «Войти через GitHub». OAuth на новом origin требует
+добавления этого точного адреса в Redirect URLs Supabase; подробности — в документации ДЗ6.
 
 ## Проверки
 
@@ -41,6 +60,7 @@ npm run dev
 npm test
 npm run test:sql
 npm run typecheck
+npm run lint
 npm run build
 npm run check:browser
 npm run check:supabase
@@ -68,7 +88,11 @@ npm run preview
 тестовые книги. Результаты: [API/RLS](docs/images/hw5/live-api-results.json) и
 [production UI](docs/images/hw5/live-browser-results.json). Секреты берутся из
 игнорируемого `.env.integration.local`; значения не публикуются.
-Lint не настроен. Автоматический `npm audit fix --force` не применяется.
+ESLint настроен. На финальной проверке ДЗ6 прошли 112 тестов и 37 SQL-проверок;
+[15 проверок публичного UI](docs/audit/final-browser-results.json) выполнены отдельно
+с реальным Supabase. `npm audit` и `npm audit --omit=dev` дают разные результаты:
+7 и 0 находок соответственно, см. [итоговый JSON](docs/audit/final-npm-audit.json).
+Автоматический `npm audit fix --force` не применяется.
 
 ## Структура
 
@@ -79,7 +103,11 @@ Lint не настроен. Автоматический `npm audit fix --force`
 - `src/App.tsx`, `src/components/`, `src/hooks/` — существующая библиотека и формы.
 - `supabase/migrations/` — воспроизводимый SQL, RLS и права на столбцы.
 - `scripts/` — локальный SQL, браузерные и live-интеграционные проверки.
-- `docs/` — [навигация ДЗ1–ДЗ5](docs/README.md),
+- `src/analytics/` — необязательная Метрика; без настройки счётчик не загружается.
+- `api/health.ts`, `server/` — серверная проверка доступности для Vercel.
+- `shared/` — JSON-логирование с разрешёнными полями.
+- `.github/workflows/ci-cd.yml` — CI и production-деплой после push в main.
+- `docs/` — [навигация ДЗ1–ДЗ6](docs/README.md),
   [ТЗ](docs/technical_specification.md), [отчёт ДЗ4](docs/development_report.md).
 
 Данные сохраняются в PostgreSQL после успешного применения миграции. При
@@ -87,6 +115,6 @@ Lint не настроен. Автоматический `npm audit fix --force`
 блокируя повторное сохранение. Смена аккаунта очищает библиотеку и черновики.
 
 Репозиторий: [sergogaset/BookTrack](https://github.com/sergogaset/BookTrack).
-Изменения текущей сессии ещё не опубликованы. Адрес размещённого frontend неизвестен;
-инструкции локального запуска являются артефактом сдачи. OAuth, CI/CD и аналитика
-относятся к финальному заданию.
+Frontend и изменения этапа 6 опубликованы:
+[успешный CI/CD](https://github.com/sergogaset/BookTrack/actions/runs/38822685700).
+Итоговая документация этапа 7 подготовлена локально и ожидает публикации через PR.

@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-15T23:38:18.158Z",
+  "result": "PASS",
+  "failedStage": null,
+  "productionUrl": "https://booktrack-one.vercel.app",
+  "sourceScenario": "scripts/browser-live-check.mjs adapted in memory: public origin, no preview or screenshots, separate report, analytics request assertion",
+  "scope": "Live production frontend and real Supabase Auth/PostgreSQL; no HTTP interception; two ordinary test users",
+  "passed": [
+    "Unauthenticated UI hides private books",
+    "Real Auth rejects a wrong password with a safe UI message",
+    "UI CREATE returns exactly one new fixture id",
+    "Page reload restores Auth session and reads the PostgreSQL book",
+    "User B cannot see the user A fixture",
+    "User B logout clears the library",
+    "Search and status filter select the persisted edited fixture",
+    "Live UI has no horizontal overflow at 320px",
+    "Changing finished to reading clears the saved rating",
+    "Logout then fresh sign-in preserves the PostgreSQL record",
+    "UI DELETE remains absent after reload",
+    "Changing accounts resets the search draft",
+    "Deferred analytics sends no Yandex requests",
+    "No unexpected browser errors beyond the controlled wrong-password response",
+    "Only fixture ids created in this run were cleaned up; absence verified"
+  ],
+  "statusCounts": {
+    "analyticsRequests": 0,
+    "controlledAuthRefusals": 1,
+    "pageErrors": 0,
+    "consoleErrors": 1
+  },
+  "screenshots": [],
+  "notChecked": [
+    "Registration form and receipt of the real confirmation email (accounts were already confirmed)",
+    "Dashboard logs and catalog inspection",
+    "Physical mobile, screen reader, 200% zoom, full contrast audit"
+  ]
+}
