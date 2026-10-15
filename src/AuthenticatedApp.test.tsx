@@ -12,7 +12,6 @@ function setup(initial: AuthUser | null = null) {
   const auth: AuthService = {
     restore: vi.fn().mockResolvedValue(initial),
     signIn: vi.fn().mockResolvedValue(userA), signUp: vi.fn().mockResolvedValue(null),
-    signInWithGoogle: vi.fn().mockResolvedValue(undefined),
     signOut: vi.fn().mockResolvedValue(undefined),
     subscribe(callback) { listener = callback; return vi.fn(); },
   };
@@ -22,16 +21,6 @@ function setup(initial: AuthUser | null = null) {
   return { auth, repositoryFor, emit: (user: AuthUser | null) => act(() => listener(user)) };
 }
 describe('Authentication boundary', () => {
-  it('starts Google login from the button and keeps email login usable after a failure', async () => {
-    const context = setup();
-    vi.mocked(context.auth.signInWithGoogle).mockRejectedValue(new BackendError('network', 'Нет связи с сервером.'));
-    render(<AuthenticatedApp {...context} />);
-    await userEvent.click(await screen.findByRole('button', { name: 'Войти через Google' }));
-    expect(context.auth.signInWithGoogle).toHaveBeenCalledTimes(1);
-    expect(await screen.findByRole('alert')).toHaveTextContent('Нет связи');
-    expect(screen.getByRole('button', { name: 'Войти' })).toBeEnabled();
-    expect(context.repositoryFor).not.toHaveBeenCalled();
-  });
   it('protects the library, signs in and clears it on logout', async () => {
     const context = setup();
     render(<AuthenticatedApp {...context} />);

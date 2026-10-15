@@ -35,7 +35,6 @@ export function AuthForm({ auth, onAuthenticated }: { auth: AuthService; onAuthe
         {notice && <p role="status" className="my-4 text-sm text-teal-800">{notice}</p>}
         <button className="btn-primary mt-6 w-full" disabled={pending}>{pending ? 'Подождите…' : mode === 'signIn' ? 'Войти' : 'Зарегистрироваться'}</button>
       </form>
-      <button type="button" className="btn-secondary mt-4 w-full" disabled={pending} onClick={() => void run(async () => { setNotice(''); await auth.signInWithGoogle(); })}>Войти через Google</button>
       <button className="mt-5 text-sm font-medium text-teal-700 hover:underline" disabled={pending} onClick={() => { setMode(mode === 'signIn' ? 'signUp' : 'signIn'); setPassword(''); setNotice(''); clearError(); }}>
         {mode === 'signIn' ? 'Создать аккаунт' : 'Уже есть аккаунт? Войти'}
       </button>

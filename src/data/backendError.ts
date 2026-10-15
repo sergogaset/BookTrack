@@ -1,5 +1,3 @@
-import { log } from '../../shared/logger';
-
 export type ErrorCategory = 'validation' | 'unauthenticated' | 'unavailable' | 'network' | 'unexpected';
 
 export class BackendError extends Error {
@@ -29,6 +27,6 @@ export function backendError(cause: unknown, operation: 'auth' | 'list' | 'creat
   else if (cause instanceof TypeError || /fetch|network|load failed|timeout/i.test(message)) { category = 'network'; text = 'Нет связи с сервером. Проверьте подключение к интернету.'; }
   const needsReview = operation !== 'auth' && operation !== 'list' && (category === 'network' || category === 'unexpected');
   if (needsReview) text = 'Не удалось подтвердить сохранение. Закройте форму и обновите список перед новой попыткой; запрос мог выполниться.';
-  if (!import.meta.env.PROD) log('warning', 'backend_failed');
+  console.warn('[BookTrack]', { operation, category });
   return new BackendError(category, text, needsReview);
 }

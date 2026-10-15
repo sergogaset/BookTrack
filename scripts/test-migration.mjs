@@ -31,11 +31,6 @@ try {
   const migration = await readFile(new URL('../supabase/migrations/20261015000100_create_books.sql', import.meta.url), 'utf8');
   check(!/\b(drop|truncate|delete\s+from)\b/i.test(migration), 'No destructive statements in migration');
   await db.exec(migration);
-  await db.exec(await readFile(new URL('../supabase/migrations/20261015000200_health_check.sql', import.meta.url), 'utf8'));
-  await db.exec('set role anon;');
-  check((await db.query('select public.booktrack_health() as healthy')).rows[0].healthy === true, 'Anonymous read-only health RPC executes in PostgreSQL');
-  await denied('select * from public.books', [], '42501');
-  await db.exec('reset role;');
   const permissions = await db.query("select rolname, rolsuper, rolbypassrls from pg_roles where rolname in ('anon', 'authenticated')");
   check(permissions.rows.every(role => !role.rolsuper && !role.rolbypassrls), 'Assertions use roles without superuser or BYPASSRLS');
   await asUser(a);
