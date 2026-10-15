@@ -4,5 +4,7 @@ import { afterEach } from 'vitest';
 
 afterEach(cleanup);
 // jsdom has no native modal implementation; real focus trapping is checked in a browser.
-HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
-HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
+if (typeof HTMLDialogElement !== 'undefined') {
+  HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
+  HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
+}
